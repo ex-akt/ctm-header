@@ -16,6 +16,43 @@ $xh-toggle-duration:          .22s !default;
 $xh-nav-gap:                  var(--gtr-half) !default;
 $xh-nav-color-active:         var(--clr-primary) !default;
 
+// Untermenue auf dem Desktop
+//
+// Das Panel bekommt weder vom Core noch von ctm-accessibility eine Flaeche –
+// ohne diese Werte steht es durchsichtig ueber dem Seiteninhalt.
+$xh-submenu-background:       var(--body-bg) !default;
+$xh-submenu-color:            var(--text-clr-base) !default;
+$xh-submenu-color-active:     var(--clr-primary) !default;
+$xh-submenu-padding:          .5rem 0 !default;
+$xh-submenu-item-padding:     .5rem 1.25rem !default;
+$xh-submenu-shadow:           0 .5rem 1.25rem rgba(0, 0, 0, .14) !default;
+$xh-submenu-border-radius:    0 !default;
+
+// Platz fuer den Aufklapp-Pfeil am Elternpunkt. Der Button ist 1.8em breit
+// (ctm-accessibility) und sitzt absolut am rechten Rand.
+$xh-submenu-arrow-gap:        1.6em !default;
+
+// Mobiles Menue als Panel (Off-Canvas)
+//
+// Greift nur, wenn am Layout eine der Klassen nav-pnl-left/nav-pnl-right
+// gewaehlt ist. Ohne Auswahl bleibt es beim Vollbild-Overlay von
+// ctm-push-navigation.
+$xh-panel-width:              min(85vw, 21rem) !default;
+$xh-panel-background:         var(--body-bg) !default;
+$xh-panel-padding-x:          1.75rem !default;
+$xh-panel-padding-y:          1.5rem !default;
+$xh-panel-duration:           .3s !default;
+$xh-panel-shadow:             0 0 2rem rgba(0, 0, 0, .18) !default;
+
+// Abgedunkelter Grund. Haengt an <body>, nicht am Panel – Begruendung in
+// ctm_modules-xh/_pushnavigation.scss.
+$xh-panel-backdrop:           rgba(0, 0, 0, .45) !default;
+$xh-panel-backdrop-blur:      2px !default;
+
+// Der Core setzt header { z-index: 99 } (ctm_layout/_header.scss). Der Grund
+// gehoert darunter, aber ueber den Seiteninhalt.
+$xh-panel-backdrop-z:         98 !default;
+
 // Breite von Header und Footer
 //
 // Die drei Stufen entsprechen den Artikelbreiten des Core (art-px-1/2/3), damit

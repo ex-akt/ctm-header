@@ -1,0 +1,156 @@
+// Mobiles Menue als Panel (Off-Canvas)
+//
+// ctm-push-navigation zeichnet das mobile Menue als Vollbild-Overlay:
+// .pn-init liegt position:fixed ueber 100vw/100vh, halbtransparent
+// (rgba(var(--body-bg-rgb),.85)) mit backdrop-filter, eingeblendet ueber
+// opacity. "Push" heisst dort nur, dass die UNTEREBENEN seitlich hereinfahren
+// (.pn-next { translateX(-100%) }) – nicht das Menue selbst.
+//
+// Ein von der Seite einfahrendes Panel ist dieselbe Mechanik in anderer
+// Erscheinungsform. Das Paket-JS verwaltet ausschliesslich Zustandsklassen
+// (.pn-show am Menue, .open/.pn-show am Umschalter, .pn-active/.pn-next an den
+// Listen); Geometrie steht dort an keiner Stelle. Es braucht also KEINEN Fork
+// des Pakets, nur diesen zweiten CSS-Satz auf denselben Klassen.
+//
+// Geschaltet wird ueber eine Klasse an <body> (Style-Manager-Gruppe am Layout,
+// Archiv xhHeaderFooter). Ohne Auswahl bleibt es beim Overlay – ein
+// composer update aendert an einer bestehenden Seite also nichts.
+//
+// Angesprochen wird .pn-init statt .mod_navigation: Die Klasse setzt das JS
+// selbst, unabhaengig davon, welches Modul und welcher Selektor konfiguriert
+// ist (Default des Pakets ist "header .nav"). Spezifitaet 0,2,2 – damit ueber
+// der Paket-Regel .pn-init.pn-show (0,2,0), die sonst Hintergrund, Breite und
+// Transform zurueckholt.
+//
+// Keine Media Query noetig: .pn-init existiert nur unterhalb von --nav-bhr,
+// oberhalb nimmt das JS die Klasse selbst wieder weg.
+
+body:is(.nav-pnl-left, .nav-pnl-right) {
+
+  header .pn-init {
+    width: var(--xh-pnl-w);
+    max-width: 100%;
+
+    // Der Slide gehoert an .pn-init und NICHT an die ul: Die traegt beim
+    // Absteigen in die zweite Ebene bereits .pn-next { translateX(-100%) }.
+    // Ein zweiter Transform dort wuerde den Panel-Zustand mitziehen – das
+    // Panel faehre beim Oeffnen eines Untermenues zur Haelfte wieder hinaus.
+    transform: translateX(var(--xh-pnl-off));
+
+    // Das Panel faehrt, es blendet nicht: opacity bleibt auf 1. visibility
+    // schaltet erst NACH der Fahrt zurueck, sonst ist das Ausfahren
+    // unsichtbar. Beim Oeffnen greift die .pn-show-Regel unten, deren
+    // transition kein Delay traegt – visibility kommt dort sofort.
+    opacity: 1;
+    transition: transform var(--xh-pnl-dur), visibility 0s var(--xh-pnl-dur);
+
+    background: var(--xh-pnl-bg);
+    box-shadow: var(--xh-pnl-shdw);
+
+    // Muss weg. backdrop-filter macht das Element zum containing block fuer
+    // position:fixed – der abgedunkelte Grund liesse sich dann nicht mehr als
+    // Pseudoelement des Panels ueber die Seite legen, er saesse im Panel fest.
+    // (Der transform oben tut dasselbe, deshalb haengt der Grund unten am
+    // <body> und nicht hier.)
+    backdrop-filter: none;
+
+    justify-content: flex-start;
+
+    &.pn-show {
+      transform: none;
+      transition: transform var(--xh-pnl-dur);
+
+      // Ueber das ::after von ctm-sticky-header (.sh-blur header:after,
+      // z-index 1 im Stacking-Context des Headers), das sonst einen Blur ueber
+      // den obersten Streifen des Panels legt.
+      z-index: 2;
+    }
+
+    // Innenabstand des Pakets (30px, .pn-init ul) an die Panelbreite angepasst
+    // und pflegbar gemacht. Trifft bewusst alle Ebenen – die Unterebenen sind
+    // absolut positionierte Geschwister derselben Breite.
+    ul {
+      padding: var(--xh-pnl-p-y) var(--xh-pnl-p-x);
+    }
+
+    // Der Pfeil in die zweite Ebene sitzt absolut am rechten Rand und muss mit
+    // dem Innenabstand wandern (Paket: right: 30px).
+    .pn-handle {
+      right: var(--xh-pnl-p-x);
+    }
+
+    // Die gestaffelte Einblendung des Pakets (transition-delay je nth-of-type,
+    // bis 1600ms bei 20 Punkten) laesst die Eintraege nach dem Einfahren
+    // einzeln aufpoppen – beim Overlay die Signatur, im Panel wirkt es
+    // nachgezogen, und beim Schliessen bleiben die letzten Punkte stehen,
+    // waehrend das Panel schon draussen ist.
+    //
+    // !important ist hier nicht Bequemlichkeit: Die Paket-Regel
+    // .pn-active:not(.pn-next) li:nth-of-type(N) hat Spezifitaet 0,5,1, ein
+    // realistischer Selektor von aussen bleibt darunter.
+    li {
+      transition-delay: 0s !important;
+    }
+  }
+}
+
+body.nav-pnl-left header .pn-init {
+  --xh-pnl-off: -100%;
+
+  left: 0;
+  right: auto;
+}
+
+body.nav-pnl-right header .pn-init {
+  --xh-pnl-off: 100%;
+
+  left: auto;
+  right: 0;
+}
+
+// Abgedunkelter Grund
+//
+// Am <body> statt am Panel, weil das Panel durch seinen transform (und im
+// Overlay-Modus durch backdrop-filter) zum containing block fuer
+// position:fixed wird – ein Pseudoelement dort koennte die Seite nicht mehr
+// ueberdecken.
+//
+// Die Klasse nav-open setzt das Init-Template js_exakt_navigation ueber die
+// Callbacks onShow/onHide/onDestroy des Pakets. Laeuft stattdessen das
+// Standard-Template js_ctm_pushnavigation, funktioniert das Panel weiterhin –
+// nur ohne Grund und ohne Scroll-Sperre.
+body:is(.nav-pnl-left, .nav-pnl-right)::after {
+  content: '';
+
+  position: fixed;
+  inset: 0;
+  z-index: var(--xh-pnl-bd-z);
+
+  background: var(--xh-pnl-bd);
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--xh-pnl-dur), visibility 0s var(--xh-pnl-dur);
+}
+
+body:is(.nav-pnl-left, .nav-pnl-right).nav-open::after {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--xh-pnl-dur);
+
+  backdrop-filter: blur(var(--xh-pnl-bd-blur));
+}
+
+// Scroll-Sperre
+//
+// Bewusst ohne Panel-Klasse: Auch das Overlay scrollt intern (.pn-show setzt
+// overflow-y:auto), die mitscrollende Seite darunter ist dort genauso
+// unerwuenscht. Wirksam wird die Regel erst mit js_exakt_navigation, also
+// nicht rueckwirkend fuer bestehende Projekte.
+//
+// overflow am <body> genuegt, solange <html> auf visible steht – dann
+// uebernimmt der Viewport den Wert des body. Als Klasse und nicht als
+// Inline-Style aus dem JS, damit ein Projekt sie ueberschreiben kann.
+body.nav-open {
+  overflow: hidden;
+}

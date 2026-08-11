@@ -29,8 +29,12 @@ Dieses Paket macht daraus Code.
 | Modultyp **Menü-Umschalter** (`exakt_toggle`) | Markup im Template statt in der Datenbank |
 | `ctm_modules-xh/_toggle.scss` | zeichnet das Burger-Symbol – `ctm-push-navigation` liefert dafür nur Sichtbarkeit und Button-Reset |
 | `ctm_modules-xh/_navigation.scss` | Umschaltung Hauptnavigation ↔ Push-Navigation inkl. der `:not(.pn-init)`-Spezifitätsfalle, dazu die Listen-Rücksetzung |
+| `ctm_modules-xh/_submenu.scss` | Fläche und Farben des Desktop-Untermenüs – Core und a11y-Paket liefern keine |
+| `ctm_modules-xh/_navigation-icons.scss` | die Aufklapp-Pfeile als CSS-Form, weil ihre Glyphen nicht im Projekt-Font landen |
+| `ctm_modules-xh/_pushnavigation.scss` | zweite Erscheinungsform des mobilen Menüs: Panel statt Vollbild-Overlay |
+| Skript **`exakt_navigation`** (`js_exakt_navigation`) | Init der Push-Navigation mit Scroll-Sperre, „Klick daneben schließt", Schließen bei Sprungmarken und Escape |
 | `ctm_modules-xh/_container.scss` | Breite von Header und Footer – der Core begrenzt nur Artikel |
-| `style-manager-exakt-header.xml` | Style-Manager-Gruppen für Symbolgröße (am Modul) und Inhaltsbreite (am Layout), ohne Kopie ins Projekt |
+| `style-manager-exakt-header.xml` | Style-Manager-Gruppen für Symbolgröße (am Modul), Inhaltsbreite und mobiles Menü (am Layout), ohne Kopie ins Projekt |
 
 ## Installation
 
@@ -66,7 +70,10 @@ Danach im Backend:
 4. Unter *Layout → Inhaltsbreite* die Breite von Header und Footer wählen. Ohne
    Auswahl bleibt es beim bisherigen Verhalten (volle Fensterbreite) – das
    Aktualisieren des Pakets ändert an einer bestehenden Seite also nichts.
-5. Theme neu kompilieren.
+5. Für ein Panel statt des Vollbild-Overlays: unter *Layout → Mobiles Menü* die
+   Richtung wählen und in `tl_layout.scripts` `ctm_pushnavigation` durch
+   `exakt_navigation` ersetzen (siehe unten).
+6. Theme neu kompilieren.
 
 Das Toggle-CSS, die `header .mod_navigation`-Regeln und die
 Breitenbegrenzung von Header und Footer aus dem Projekt-SCSS entfernen – sie
@@ -89,6 +96,138 @@ hierher, sondern sind Framework-Sache:
   Werte stehen, die den Core-Default überschreiben (gemessen: `center` statt
   `space-between`). Wer die Projektregel entfernt, ohne das zu prüfen, rückt
   den Header in die Mitte.
+
+## Untermenüs
+
+Fällt erst auf, wenn eine Seite zum ersten Mal Unterseiten bekommt — dann ist
+plötzlich nichts erkennbar und nichts lesbar. Das **Aufklappen** selbst liefert
+`ctm-accessibility` vollständig (Button `.btn-toggle-submenu`, Schalter
+`.nav-expanded` am `li`); es legt dabei die Hover-Variante des Themes still.
+Diese Mechanik also nicht nachbauen. Was fehlt, ist die Erscheinung, und die
+kommt aus diesem Paket.
+
+**Voraussetzung: `nav nav-x` am Navigationsmodul** (Style-Manager → *Navigation*,
+Wert *Horizontal*). Der Core setzt `.submenu { position: relative }` und das
+absolute Dropdown ausschließlich unter `.nav-x`. Fehlt die Klasse, findet der
+Aufklapp-Button keinen positionierten Vorfahren — gemessen bei 1440px
+Fensterbreite: Pfeil bei `x = 1415` statt bei `673`. Ein `nav` allein, wie es
+oft von Hand in der cssID steht, genügt nicht.
+
+Was das Paket ergänzt:
+
+- **Fläche.** Weder Core noch a11y-Paket geben der `.level_2` einen Hintergrund.
+  Über einem Hero-Bild sind die Unterpunkte damit schlicht nicht lesbar.
+- **Farbe ausdrücklich statt geerbt.** `ctm-sticky-header` färbt
+  `header .level_1 > li:is(.active, .trail)` und setzt an `> li > a`
+  `color: inherit` — die zweite Ebene wechselt sonst ihre Farbe, je nachdem ob
+  der Elternpunkt gerade aktiv ist.
+- **Platz für den Pfeil**, der absolut am rechten Rand des Elternpunkts sitzt
+  und sonst auf dessen letztem Buchstaben klebt.
+- **Die Pfeile selbst**, als CSS-Form. Der ThemeCompiler erzeugt `_icon.css` und
+  den Icomoon-Font nur aus den im Projekt ausgewählten Icons; die UI-Glyphen der
+  Pakete sind nie dabei. Ohne Auswahl entsteht gar keine `_icon.css` (gemessen).
+  Betroffen sind `.btn-toggle-submenu::before` (Desktop, `\e985` aus
+  `"ctm-icon"`), `.pn-handle.i-navigate_forward` und `.pn-breadcrumb > i`
+  (mobil) — die beiden `.i-*`-Klassen sind überhaupt nirgends definiert. Der
+  Button ist dabei da, trägt sein `aria-label` und funktioniert; man sieht ihn
+  nur nicht.
+
+  Die native Rotation bleibt erhalten: `--btsz` (0deg zu, −180deg offen,
+  −90/−270deg im `.level_2`) wird zum Grundwinkel addiert statt ihn zu ersetzen.
+
+```scss
+header {
+  --xh-sub-bg:    var(--body-bg);        // Fläche des Dropdowns
+  --xh-sub-clr:   var(--text-clr-base);
+  --xh-sub-clr-a: var(--clr-primary);    // aktiv/hover
+  --xh-sub-p:     .5rem 0;               // Innenabstand des Panels
+  --xh-sub-i-p:   .5rem 1.25rem;         // je Eintrag
+  --xh-sub-shdw:  0 .5rem 1.25rem rgba(0, 0, 0, .14);
+  --xh-sub-bdr-r: 0;
+  --xh-sub-gap:   1.6em;                 // Platz für den Pfeil
+}
+```
+
+Hat ein Projekt die Glyphen doch im eigenen Icomoon-Satz, holt es sie mit
+`content: '\e985'` und `border: 0` an derselben Stelle zurück.
+
+## Mobiles Menü: Overlay oder Panel
+
+`ctm-push-navigation` zeichnet das mobile Menü als **Vollbild-Overlay**:
+`.pn-init` liegt `position: fixed` über `100vw/100vh`, halbtransparent
+(`rgba(var(--body-bg-rgb),.85)`) mit `backdrop-filter`, eingeblendet über
+`opacity`. „Push" heißt dort nur, dass die *Unterebenen* seitlich hereinfahren
+(`.pn-next { translateX(-100%) }`) — nicht das Menü selbst.
+
+Das Paket-JS verwaltet ausschließlich Zustandsklassen; Geometrie steht dort an
+keiner Stelle. Ein von der Seite einfahrendes Panel braucht deshalb **keinen
+Fork**, nur einen zweiten CSS-Satz auf denselben Klassen. Genau den bringt
+`ctm_modules-xh/_pushnavigation.scss` mit, geschaltet über eine Klasse an
+`<body>`:
+
+| Layout → Mobiles Menü | Klasse | Ergebnis |
+|---|---|---|
+| *(ohne Auswahl)* | – | Vollbild-Overlay wie bisher |
+| Panel von links | `nav-pnl-left` | Panel fester Breite, fährt von links ein |
+| Panel von rechts | `nav-pnl-right` | dasselbe von rechts |
+
+Dazu gehört das Skript **`exakt_navigation`** in `tl_layout.scripts` —
+**anstelle** von `ctm_pushnavigation`, nicht zusätzlich: Beide erzeugen eine
+Instanz auf `window.pn`, und das Standard-Template käme zuerst zum Zug. Es lädt
+dasselbe Paket-JS und nutzt nur dessen vorgesehene Optionen
+(`onShow`/`onHide`/`onDestroy`) sowie `isOpen()`; alles Weitere läuft über den
+Umschalter, den das Paket selbst erzeugt (`button.pn-btn`). Keine
+minifizierten Interna.
+
+Was es ergänzt, und warum das nicht ins Projekt-JS gehört:
+
+- **`nav-open` an `<body>`** — Grundlage für den abgedunkelten Grund und die
+  Scroll-Sperre. Als Klasse und nicht als Inline-Style, damit ein Projekt beides
+  überschreiben kann.
+- **Klick daneben schließt.** Beim Overlay gibt es kein „daneben", beim Panel
+  schon.
+- **Klick auf einen Menüpunkt schließt.** Führt ein Punkt auf dieselbe Seite
+  (Sprungmarke `#anker`), lädt nichts neu — ohne das bleibt das Menü offen über
+  dem Ziel stehen. Der häufigste Beschwerdegrund auf One-Pagern.
+- **Escape schließt** und gibt den Fokus an den Umschalter zurück. Das Paket
+  baut einen Fokus-Zyklus auf; ohne Tastaturausstieg ist das ein Keyboard-Trap.
+
+Drei Dinge, die beim Nachbauen schiefgehen — alle gemessen:
+
+1. **Der Panel-Transform gehört an `.pn-init`, nicht an die `ul`.** Die trägt
+   beim Absteigen in die zweite Ebene bereits `.pn-next { translateX(-100%) }`.
+   Ein zweiter Transform dort zieht den Panel-Zustand mit: Das Panel führe beim
+   Öffnen eines Untermenüs zur Hälfte wieder hinaus.
+2. **Der abgedunkelte Grund kann kein Pseudoelement des Panels sein.** Sowohl
+   `transform` als auch `backdrop-filter` machen `.pn-init` zum containing block
+   für `position: fixed` — der Grund säße im Panel fest. Er hängt deshalb an
+   `<body>::after`, mit `z-index: 98` unter dem `header { z-index: 99 }` des
+   Core.
+3. **Die gestaffelte Einblendung des Pakets braucht `!important`.** Die Regel
+   `.pn-active:not(.pn-next) li:nth-of-type(N)` hat Spezifität 0,5,1; ein
+   realistischer Selektor von außen bleibt darunter. Im Panel wirkt die
+   Staffelung nachgezogen (die Punkte poppen einzeln auf, nachdem das Panel
+   schon steht), deshalb ist sie dort auf `0s` gesetzt.
+
+Feinjustage über CSS-Variablen, am besten an `body` oder `header`:
+
+```scss
+body {
+  --xh-pnl-w:       min(85vw, 21rem);   // Panelbreite
+  --xh-pnl-bg:      var(--body-bg);     // Panelgrund
+  --xh-pnl-p-x:     1.75rem;            // Innenabstand, wandert mit dem Pfeil
+  --xh-pnl-p-y:     1.5rem;
+  --xh-pnl-dur:     .3s;                // Fahrtdauer, gilt auch für den Grund
+  --xh-pnl-shdw:    0 0 2rem rgba(0, 0, 0, .18);
+  --xh-pnl-bd:      rgba(0, 0, 0, .45); // abgedunkelter Grund
+  --xh-pnl-bd-blur: 2px;
+  --xh-pnl-bd-z:    98;
+}
+```
+
+Die Theme-Manager-Einstellung *Push-Navigation → Hintergrund* (`--pn-bg`) greift
+im Panel-Modus nicht: Ihr Default ist halbtransparent, was für ein Panel nicht
+taugt. Wer sie trotzdem will: `--xh-pnl-bg: var(--pn-bg)`.
 
 ## Anpassen im Projekt
 

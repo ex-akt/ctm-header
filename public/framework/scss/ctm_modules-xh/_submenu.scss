@@ -1,0 +1,55 @@
+// Das Untermenue auf dem Desktop
+//
+// Aufgeklappt wird es von ctm-accessibility (Button .btn-toggle-submenu,
+// Schalter .nav-expanded am li) – die Mechanik also nicht nachbauen, sie ist
+// vollstaendig. Was fehlt, ist die Erscheinung:
+//
+//   1. Das Panel hat nativ KEINE Flaeche. Weder Core noch a11y-Paket geben der
+//      .level_2 einen Hintergrund; sie steht durchsichtig ueber dem
+//      Seiteninhalt und ist auf einem Bild schlicht nicht lesbar.
+//   2. Der Aufklapp-Pfeil sitzt absolut am rechten Rand des Elternpunkts und
+//      klebt ohne Innenabstand auf dessen letztem Buchstaben.
+//
+// Voraussetzung fuer beides: Am Navigationsmodul muss die Core-Ausrichtung
+// gewaehlt sein (Style-Manager "Navigation", Klassen `nav nav-x`). Der Core
+// setzt .submenu { position: relative } und das absolute Dropdown NUR dort.
+// Ohne die Klasse findet der Button keinen positionierten Vorfahren – gemessen
+// bei 1440px Fensterbreite: Pfeil bei x = 1415 statt bei 673.
+//
+// Ausgeschriebene Media Query, siehe Kommentar in _navigation.scss: Diese Datei
+// wird auch ohne ctm_utils uebersetzt, media-breakpoint() gibt es dort nicht.
+
+@media (min-width: $navigation-behaviour-min-width) {
+
+  // Platz fuer den Pfeil. Gilt fuer beide Ebenen – im .level_2 ruecken die
+  // Buttons ueber --btsr weiter nach innen, der Abstand passt trotzdem.
+  //
+  // Nicht mobil: Dort liegt das Menue als .pn-init vor und das Paket setzt
+  // seinen eigenen Abstand (li.submenu { padding-right: 50px }).
+  header .submenu > :is(a, strong, span) {
+    padding-right: var(--xh-sub-gap);
+  }
+
+  header .level_2 {
+    padding: var(--xh-sub-p);
+
+    background: var(--xh-sub-bg);
+    box-shadow: var(--xh-sub-shdw);
+    border-radius: var(--xh-sub-bdr-r);
+
+    :is(a, strong) {
+      display: block;
+      padding: var(--xh-sub-i-p);
+
+      // Ausdruecklich, nicht geerbt. ctm-sticky-header faerbt
+      // `header .level_1 > li:is(.active, .trail)` und setzt an `> li > a`
+      // color: inherit – die zweite Ebene uebernimmt das sonst mit und wechselt
+      // ihre Farbe, je nachdem ob der Elternpunkt gerade aktiv ist.
+      color: var(--xh-sub-clr);
+    }
+
+    :is(a:hover, li:is(.active, .trail) > strong) {
+      color: var(--xh-sub-clr-a);
+    }
+  }
+}

@@ -57,6 +57,16 @@ $archives = [
                 // erwartet, dass Header und Footer je Seite anders breit sind.
                 'extend'      => ['extendLayout'],
             ],
+            [
+                'alias'       => 'navigation',
+                'title'       => 'Mobiles Menü',
+                'description' => 'Erscheinungsform des mobilen Menüs. Ohne Auswahl legt sich ctm-push-navigation als halbtransparentes Vollbild über die Seite; als Panel fährt es in fester Breite von der Seite herein, der Rest der Seite wird abgedunkelt. Voraussetzung für Abdunklung, Scroll-Sperre und "Klick daneben schließt" ist das Skript exakt_navigation im Layout (statt ctm_pushnavigation).',
+                'cssClasses'  => [
+                    ['key' => 'nav-pnl-left', 'value' => 'Panel von links'],
+                    ['key' => 'nav-pnl-right', 'value' => 'Panel von rechts'],
+                ],
+                'extend'      => ['extendLayout'],
+            ],
         ],
     ],
 ];

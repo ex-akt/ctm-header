@@ -1,0 +1,67 @@
+// Die Pfeile an den Untermenues – als CSS-Form statt als Schrift-Glyphe
+//
+// Der ThemeCompiler erzeugt _icon.css und den Icomoon-Font NUR aus den im
+// Projekt ausgewaehlten Icons. Die UI-Glyphen der Pakete sind nicht dabei, und
+// zwar unabhaengig davon, ob ein Projekt ueberhaupt Icons nutzt: Ohne Auswahl
+// entsteht gar keine _icon.css (gemessen bei kleinhanss.de – im gesamten
+// dist-Verzeichnis keine Datei, keine .i-*-Klasse).
+//
+// Betroffen sind drei Stellen, alle mit demselben Symptom: Der Button ist da,
+// traegt sein aria-label und funktioniert – man sieht ihn nur nicht. Also
+// genau das Bild "es fehlt ein Fingerzeig, dass es hier weitergeht".
+//
+//   .btn-toggle-submenu::before   Desktop, aus ctm-accessibility
+//                                 @include icon('\e985') aus "ctm-icon"
+//   .pn-handle                    mobil, aus ctm-push-navigation
+//                                 Klasse .i-navigate_forward – nirgends definiert
+//   .pn-breadcrumb > i            mobil, der Weg zurueck
+//                                 Klasse .i-navigate_back – ebenfalls nirgends
+//
+// Der Weg ueber eine CSS-Form statt ueber den Font-Neubau hat zwei Vorteile: Er
+// gilt fuer jedes Projekt gleich, und er faerbt sich ueber currentColor mit.
+//
+// Sollte ein Projekt die Glyphen doch im eigenen Icomoon-Satz haben, holt es
+// sie mit content: '\e985' und border: 0 an derselben Stelle zurueck.
+
+// Gemeinsame Form: die Ecke eines Quadrats, gedreht. Der Winkel kommt je
+// Verwendung dazu.
+@mixin xh-chevron($size: .36em, $weight: 2px) {
+  content: '' / '';
+
+  display: inline-block;
+  width: $size;
+  height: $size;
+
+  border-right: $weight solid currentColor;
+  border-bottom: $weight solid currentColor;
+}
+
+// Desktop
+//
+// Spezifitaet 0,1,1 gegen die Paket-Regel .btn-toggle-submenu:before (0,1,0) –
+// damit unabhaengig von der Ladereihenfolge der beiden Kompilate.
+//
+// Die native Rotation bleibt erhalten: --btsz ist 0deg zu, -180deg offen und
+// im .level_2 -90deg/-270deg. Sie wird zum Grundwinkel addiert, statt ihn zu
+// ersetzen – ein eigenes transform am ::before wuerde sie sonst ueberschreiben
+// und der Pfeil stuende beim Aufklappen still.
+header .btn-toggle-submenu::before {
+  @include xh-chevron;
+
+  transform: translateY(-.12em) rotate(calc(45deg + var(--btsz, 0deg)));
+}
+
+// Mobil: hinein in die zweite Ebene
+.pn-handle.i-navigate_forward::before {
+  @include xh-chevron(.5em);
+
+  transform: translateX(-.15em) rotate(-45deg);
+}
+
+// Mobil: zurueck. Das Paket setzt den Inhalt des Breadcrumb-Buttons per JS auf
+// '<i class="i-navigate_back"></i> ' + Titel des Elternpunkts.
+.pn-breadcrumb > .i-navigate_back::before {
+  @include xh-chevron(.5em);
+
+  transform: translateX(.15em) rotate(135deg);
+}

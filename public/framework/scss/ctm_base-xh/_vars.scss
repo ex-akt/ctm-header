@@ -17,4 +17,25 @@
   // Hauptnavigation
   --xh-nav-gap:     #{$xh-nav-gap};
   --xh-nav-clr-a:   #{$xh-nav-color-active};
+
+  // Untermenue auf dem Desktop
+  --xh-sub-bg:      #{$xh-submenu-background};
+  --xh-sub-clr:     #{$xh-submenu-color};
+  --xh-sub-clr-a:   #{$xh-submenu-color-active};
+  --xh-sub-p:       #{$xh-submenu-padding};
+  --xh-sub-i-p:     #{$xh-submenu-item-padding};
+  --xh-sub-shdw:    #{$xh-submenu-shadow};
+  --xh-sub-bdr-r:   #{$xh-submenu-border-radius};
+  --xh-sub-gap:     #{$xh-submenu-arrow-gap};
+
+  // Mobiles Menue als Panel
+  --xh-pnl-w:       #{$xh-panel-width};
+  --xh-pnl-bg:      #{$xh-panel-background};
+  --xh-pnl-p-x:     #{$xh-panel-padding-x};
+  --xh-pnl-p-y:     #{$xh-panel-padding-y};
+  --xh-pnl-dur:     #{$xh-panel-duration};
+  --xh-pnl-shdw:    #{$xh-panel-shadow};
+  --xh-pnl-bd:      #{$xh-panel-backdrop};
+  --xh-pnl-bd-blur: #{$xh-panel-backdrop-blur};
+  --xh-pnl-bd-z:    #{$xh-panel-backdrop-z};
 }

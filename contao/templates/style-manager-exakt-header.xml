@@ -57,6 +57,16 @@
         <field title="blankOption">1</field>
         <field title="extendLayout">1</field>
       </child>
+      <child alias="navigation">
+        <field title="pid">901</field>
+        <field title="sorting">256</field>
+        <field title="alias">navigation</field>
+        <field title="title">Mobiles Menü</field>
+        <field title="description">Erscheinungsform des mobilen Menüs. Ohne Auswahl legt sich ctm-push-navigation als halbtransparentes Vollbild über die Seite; als Panel fährt es in fester Breite von der Seite herein, der Rest der Seite wird abgedunkelt. Voraussetzung für Abdunklung, Scroll-Sperre und &quot;Klick daneben schließt&quot; ist das Skript exakt_navigation im Layout (statt ctm_pushnavigation).</field>
+        <field title="cssClasses">a:2:{i:0;a:2:{s:3:&quot;key&quot;;s:12:&quot;nav-pnl-left&quot;;s:5:&quot;value&quot;;s:15:&quot;Panel von links&quot;;}i:1;a:2:{s:3:&quot;key&quot;;s:13:&quot;nav-pnl-right&quot;;s:5:&quot;value&quot;;s:16:&quot;Panel von rechts&quot;;}}</field>
+        <field title="blankOption">1</field>
+        <field title="extendLayout">1</field>
+      </child>
     </children>
   </archive>
 </archives>

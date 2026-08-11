@@ -1,0 +1,102 @@
+<?php
+/*
+ * Initialisierung der Push-Navigation mit Panel-Verhalten.
+ *
+ * ANSTELLE von js_ctm_pushnavigation in tl_layout.scripts waehlen, nicht
+ * zusaetzlich: Beide Templates erzeugen eine Instanz auf window.pn. Der Guard
+ * unten verhindert zwar die zweite, das Standard-Template kaeme dann aber
+ * zuerst zum Zug – und mit ihm eine Instanz ohne die Callbacks hier.
+ *
+ * Das Paket-JS bleibt unangetastet. Genutzt werden ausschliesslich die dafuer
+ * vorgesehenen Optionen (onShow/onHide/onDestroy) und die oeffentliche Methode
+ * isOpen(); alles Weitere laeuft ueber den Umschalter, den das Paket selbst
+ * erzeugt (button.pn-btn). Keine minifizierten Interna.
+ *
+ * Was hier dazukommt und im Paket fehlt:
+ *
+ *   nav-open an <body>   Grundlage fuer den abgedunkelten Grund und die
+ *                        Scroll-Sperre (ctm_modules-xh/_pushnavigation.scss).
+ *                        Als Klasse statt als Inline-Style, damit ein Projekt
+ *                        beides ueberschreiben kann.
+ *   Klick daneben        Beim Panel liegt neben dem Menue wieder Seite – ohne
+ *                        Handler gaebe es dort keine Reaktion.
+ *   Klick auf einen      Fuehrt ein Menuepunkt auf dieselbe Seite (Sprungmarke
+ *   Menuepunkt           #anker), laedt nichts neu und das Menue bleibt offen
+ *                        ueber dem Ziel stehen.
+ *   Escape               Das Paket baut einen Fokus-Zyklus auf; ohne
+ *                        Tastaturausstieg ist das ein Keyboard-Trap.
+ */
+
+$GLOBALS['TL_JAVASCRIPT']['ctm-push-navigation'] = 'bundles/contaothememanagerpushnavigation/assets/dist/pushnavigation.js|static';
+
+$GLOBALS['TL_HEAD']['exakt-navigation'] = <<<'HTML'
+<script>
+window.addEventListener('load', function () {
+    if (typeof PushNavigation === 'undefined' || window.pn) {
+        return;
+    }
+
+    var body = document.body;
+
+    window.pn = new PushNavigation({
+        onShow: function () {
+            body.classList.add('nav-open');
+        },
+        onHide: function () {
+            body.classList.remove('nav-open');
+        },
+        // Greift beim Wechsel ueber den Umschaltpunkt (--nav-bhr). Ohne das
+        // bliebe die Scroll-Sperre haengen, wenn das Fenster mit offenem Menue
+        // auf Desktopbreite gezogen wird.
+        onDestroy: function () {
+            body.classList.remove('nav-open');
+        }
+    });
+
+    var toggle = function () {
+        return document.querySelector('.pn-btn');
+    };
+
+    document.addEventListener('click', function (e) {
+        if (!window.pn.isOpen()) {
+            return;
+        }
+
+        var nav = document.querySelector('.pn-init');
+        var btn = toggle();
+
+        if (!nav || !btn || btn.contains(e.target)) {
+            return;
+        }
+
+        if (!nav.contains(e.target)) {
+            btn.click();
+            btn.focus();
+            return;
+        }
+
+        // .pn-handle und .pn-breadcrumb des Pakets sind <button> und damit
+        // ohnehin aussen vor. .pn-to-menu ist der Sprung zurueck auf den
+        // Umschalter und darf das Menue nicht schliessen.
+        var link = e.target.closest ? e.target.closest('a[href]') : null;
+
+        if (link && !link.classList.contains('pn-to-menu')) {
+            btn.click();
+        }
+    }, false);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || !window.pn.isOpen()) {
+            return;
+        }
+
+        var btn = toggle();
+
+        if (btn) {
+            btn.click();
+            btn.focus();
+        }
+    }, false);
+});
+</script>
+HTML;

@@ -1,0 +1,53 @@
+// Breite von Header und Footer
+//
+// Der Core begrenzt die Inhaltsbreite ueber
+// `[class*=art-px] > .inside { max-width: var(--art-wdth); margin-inline: auto }`
+// (ctm_layout/_article-spacing.scss). Diese Regel haengt an einer Klasse, die
+// nur Artikel und Container tragen. Header und Footer haben keine Artikel –
+// ihre Inhalte laufen deshalb bis an den Fensterrand, waehrend der Seiteninhalt
+// mittig steht.
+//
+// Gemessen in drei Projekten, die genau das einzeln nachgebaut haben:
+//
+//   Projekt A  header + footer  --art-wdth + max-width/margin auto
+//   Projekt B  header           dieselben vier Zeilen, plus position: relative
+//   Projekt B  footer           NUR die Variable, ohne die Regel dazu –
+//                               wirkungslos, der Footer lief ungebremst
+//   Projekt C  header + footer  Wert hart notiert, dazu box-sizing und width
+//
+// Drei Schreibweisen, zwei Werte, ein stiller Ausfall. Deshalb hier.
+
+header > .inside,
+footer > .inside {
+  // Ohne Auswahl bleibt max-width auf seinem Initialwert `none`. Ein Projekt,
+  // das auf diese Version aktualisiert, sieht also keine Aenderung – die
+  // Begrenzung entsteht erst, wenn --xh-cnt-wdth einen Wert bekommt.
+  //
+  // Getrennte Variablen mit gemeinsamem Fallback: die Backend-Auswahl setzt
+  // --xh-cnt-wdth fuer beide, ein Projekt kann Header und Footer trotzdem
+  // einzeln uebersteuern (header { --xh-hdr-wdth: 1400px }).
+  margin-inline: auto;
+}
+
+header > .inside {
+  max-width: var(--xh-hdr-wdth, var(--xh-cnt-wdth, none));
+}
+
+footer > .inside {
+  max-width: var(--xh-ftr-wdth, var(--xh-cnt-wdth, none));
+}
+
+// Stufen der Style-Manager-Gruppe xhHeaderFooter (extendLayout).
+//
+// Contao schreibt die CSS-Klasse eines Layouts an <body> – genauso arbeitet die
+// Core-Gruppe "Header behaviour", deren Regel `body.fixed.undock` lautet. Von
+// dort vererbt --xh-cnt-wdth an Header und Footer.
+//
+// Die Nummerierung folgt bewusst art-px-1/2/3: dieselbe Ziffer, dieselbe
+// Breite, damit im Backend nicht geraten werden muss, welche Stufe zum Artikel
+// passt. Dass die kleinere Ziffer die groessere Breite bedeutet, ist eine
+// Eigenart des Core (art-px = Aussenabstand, nicht Breite) – hier wird sie
+// gespiegelt, nicht korrigiert.
+.cnt-w-1 { --xh-cnt-wdth: #{$xh-content-width-1}; }
+.cnt-w-2 { --xh-cnt-wdth: #{$xh-content-width-2}; }
+.cnt-w-3 { --xh-cnt-wdth: #{$xh-content-width-3}; }

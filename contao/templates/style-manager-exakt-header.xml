@@ -7,9 +7,12 @@
   zu installieren genuegt also - die Datei muss weder in ein Projekt kopiert noch
   im Backend importiert werden, und tl_style_manager bleibt dabei leer.
 
+  Diese Datei wird generiert, nicht von Hand gepflegt:
+  php bin/generate-style-manager-xml.php
+
   Nur Klassen eintragen, fuer die dieses Paket auch eine CSS-Regel mitbringt
-  (ctm_modules-xh/_toggle.scss). Eine Gruppe ohne Regel waere im Backend
-  waehlbar und im Frontend wirkungslos.
+  (ctm_modules-xh/). Eine Gruppe ohne Regel waere im Backend waehlbar und im
+  Frontend wirkungslos.
 
   extendModule/modules gehoeren ans CHILD, nicht ans Archiv - ohne die
   Whitelist bleibt die Gruppe im Modul unsichtbar, waehrend clearClasses() die
@@ -34,6 +37,25 @@
         <field title="blankOption">1</field>
         <field title="extendModule">1</field>
         <field title="modules">a:1:{i:0;s:12:&quot;exakt_toggle&quot;;}</field>
+      </child>
+    </children>
+  </archive>
+  <archive identifier="xhHeaderFooter">
+    <field title="id">901</field>
+    <field title="title">Header &amp; Footer</field>
+    <field title="identifier">xhHeaderFooter</field>
+    <field title="groupAlias">Global</field>
+    <field title="sorting">256</field>
+    <children>
+      <child alias="width">
+        <field title="pid">901</field>
+        <field title="sorting">128</field>
+        <field title="alias">width</field>
+        <field title="title">Inhaltsbreite</field>
+        <field title="description">Begrenzt die Inhaltsbreite von Header und Footer. Ohne Auswahl laufen beide bis an den Fensterrand, während der Seiteninhalt mittig steht. Die Stufen entsprechen den Artikel-Außenabständen (art-px), damit Header, Inhalt und Footer bündig stehen.</field>
+        <field title="cssClasses">a:3:{i:0;a:2:{s:3:&quot;key&quot;;s:7:&quot;cnt-w-1&quot;;s:5:&quot;value&quot;;s:20:&quot;Breit (wie art-px-1)&quot;;}i:1;a:2:{s:3:&quot;key&quot;;s:7:&quot;cnt-w-2&quot;;s:5:&quot;value&quot;;s:21:&quot;Mittel (wie art-px-2)&quot;;}i:2;a:2:{s:3:&quot;key&quot;;s:7:&quot;cnt-w-3&quot;;s:5:&quot;value&quot;;s:21:&quot;Schmal (wie art-px-3)&quot;;}}</field>
+        <field title="blankOption">1</field>
+        <field title="extendLayout">1</field>
       </child>
     </children>
   </archive>

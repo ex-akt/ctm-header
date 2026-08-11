@@ -28,8 +28,9 @@ Dieses Paket macht daraus Code.
 |---|---|
 | Modultyp **Menü-Umschalter** (`exakt_toggle`) | Markup im Template statt in der Datenbank |
 | `ctm_modules-xh/_toggle.scss` | zeichnet das Burger-Symbol – `ctm-push-navigation` liefert dafür nur Sichtbarkeit und Button-Reset |
-| `ctm_modules-xh/_navigation.scss` | Umschaltung Hauptnavigation ↔ Push-Navigation inkl. der `:not(.pn-init)`-Spezifitätsfalle |
-| `style-manager-exakt-header.xml` | Style-Manager-Gruppe zur Symbolgröße, ohne Kopie ins Projekt |
+| `ctm_modules-xh/_navigation.scss` | Umschaltung Hauptnavigation ↔ Push-Navigation inkl. der `:not(.pn-init)`-Spezifitätsfalle, dazu die Listen-Rücksetzung |
+| `ctm_modules-xh/_container.scss` | Breite von Header und Footer – der Core begrenzt nur Artikel |
+| `style-manager-exakt-header.xml` | Style-Manager-Gruppen für Symbolgröße (am Modul) und Inhaltsbreite (am Layout), ohne Kopie ins Projekt |
 
 ## Installation
 
@@ -62,10 +63,32 @@ Danach im Backend:
    Push-Navigation-JS liest `navAriaLabels` ungeschützt, definiert die Variable
    aber nie – ohne das a11y-Paket bricht der Konstruktor mit `ReferenceError` ab
    und das Menü tut kommentarlos nichts.
-4. Theme neu kompilieren.
+4. Unter *Layout → Inhaltsbreite* die Breite von Header und Footer wählen. Ohne
+   Auswahl bleibt es beim bisherigen Verhalten (volle Fensterbreite) – das
+   Aktualisieren des Pakets ändert an einer bestehenden Seite also nichts.
+5. Theme neu kompilieren.
 
-Das Toggle-CSS und die `header .mod_navigation`-Regeln aus dem Projekt-SCSS
-entfernen – sie kommen jetzt aus dem Paket.
+Das Toggle-CSS, die `header .mod_navigation`-Regeln und die
+Breitenbegrenzung von Header und Footer aus dem Projekt-SCSS entfernen – sie
+kommen jetzt aus dem Paket.
+
+Zwei weitere Regeln, die in Projekten oft danebenstehen, gehören ebenfalls nicht
+hierher, sondern sind Framework-Sache:
+
+- **Platz unter dem fixierten Header.** Der Core liefert
+  `body.fixed.undock { padding-top: var(--hdr-hght) }`, geschaltet über
+  *Layout → Header-Verhalten → Undocked*. Ein eigenes
+  `#wrapper { padding-top }` baut das nach. Grund für die Verwechslung:
+  `ctm-sticky-header` setzt `position: fixed` unabhängig von der Klasse – ohne
+  die Backend-Auswahl fehlt der Platzhalter also trotzdem, und der Reflex ist,
+  ihn selbst zu schreiben.
+- **Logo und Navigation nebeneinander.** Der Core setzt `header > .inside`
+  bereits auf `display: flex`; Ausrichtung und Innenabstand kommen aus
+  `$header-alignment-vertical`, `$header-alignment-horizontal` und
+  `$header-padding`. Achtung: In `tl_theme.themeConfig` können abweichende
+  Werte stehen, die den Core-Default überschreiben (gemessen: `center` statt
+  `space-between`). Wer die Projektregel entfernt, ohne das zu prüfen, rückt
+  den Header in die Mitte.
 
 ## Anpassen im Projekt
 
@@ -95,7 +118,23 @@ header .mod_navigation {
   --xh-nav-gap: 2rem;                    // Abstand der Hauptpunkte
   --xh-nav-clr-a: var(--clr-secondary);  // aktiv/hover
 }
+
+// Breite: normalerweise über die Layout-Auswahl. Für einen Wert, den keine
+// Stufe trifft, oder für Header ≠ Footer:
+header { --xh-hdr-wdth: 1400px; }
+footer { --xh-ftr-wdth: 100%; }
 ```
+
+Zur Breite im Einzelnen: Die Backend-Auswahl setzt `--xh-cnt-wdth` an `<body>`,
+von dort erbt es an beide. `--xh-hdr-wdth` und `--xh-ftr-wdth` stehen davor und
+übersteuern es einzeln. Ohne jeden Wert bleibt `max-width` auf `none`.
+
+Die drei Stufen entsprechen den Artikelbreiten `art-px-1/2/3`, damit Header,
+Inhalt und Footer bündig stehen – gemessen bei 1440px: Header und ein Artikel
+mit `art-px-2` beide bei `x = 104`, Breite `1232px`. Dass die kleinere Ziffer
+die größere Breite bedeutet, ist eine Eigenart des Core (`art-px` beschreibt den
+Außenabstand, nicht die Breite); das Paket spiegelt sie, statt eine zweite
+Zählweise einzuführen.
 
 Am Element gesetzt gewinnen sie immer über die `:root`-Defaults des Pakets –
 unabhängig davon, welche CSS-Datei zuerst geladen wurde.
@@ -119,6 +158,27 @@ php bin/generate-style-manager-xml.php
 Die `cssClasses`- und `modules`-Felder sind serialisierte PHP-Arrays; von Hand
 getippt stimmen die Längenpräfixe erfahrungsgemäß nicht (`s:12:"exakt_toggle"`,
 nicht `s:13:`), und ein falsches Präfix macht die Gruppe still unbrauchbar.
+
+Zwei Gruppen mit unterschiedlichem Ziel:
+
+| Gruppe | Ziel | Klassen |
+|---|---|---|
+| `mHeaderToggle` → Größe des Symbols | `extendModule`, nur `exakt_toggle` | `tgl-small`, `tgl-large` |
+| `xhHeaderFooter` → Inhaltsbreite | `extendLayout` | `cnt-w-1`, `cnt-w-2`, `cnt-w-3` |
+
+Bei `extendLayout` schreibt Contao die Klasse an `<body>` – genauso arbeitet die
+Core-Gruppe „Header behaviour", deren Regel `body.fixed.undock` lautet. Die
+Klasse steht dabei sowohl in `tl_layout.cssClass` als auch, unter dem Schlüssel
+`{archivIdentifier}_{gruppenAlias}`, im serialisierten Feld
+`tl_layout.styleManager`. Wer sie nur in `cssClass` einträgt, verliert sie beim
+nächsten Speichern: `StyleManager::clearClasses()` filtert jede Klasse aus dem
+Feld, die zu einer Gruppe gehört, aber dort nicht ausgewählt ist.
+
+Eigene Archive statt Andocken an die leeren Core-Archive `gHeader`/`gFooter`:
+Für YAML-Konfigurationen ist das Zusammenführen nach `identifier` vorgesehen
+(`Config::parseYamlConfiguration` prüft `isset($styleArchives[$archiveIdent])`),
+für XML läuft der Import über `ImportController::importXmlFiles` – ohne
+zugesicherte Merge-Semantik und abhängig von der Dateireihenfolge.
 
 ## Was gegenüber den bisherigen Einzelkopien korrigiert wurde
 
@@ -144,6 +204,35 @@ Easing beim Öffnen (`cubic-bezier(.215, .61, .355, 1)`) als beim Schließen.
 
 Kleinere Angleichungen: `line-height: 1`, `z-index`, `:hover { opacity: .7 }`
 im geöffneten Zustand, `<div>` statt `<span>` für die Boxen.
+
+**Die Breitenbegrenzung stand dreimal da, in drei Schreibweisen.** Der Core
+begrenzt die Inhaltsbreite über `[class*=art-px] > .inside` – eine Klasse, die
+nur Artikel und Container tragen. Header und Footer haben keine Artikel, also
+lief ihr Inhalt bis an den Fensterrand, während der Seiteninhalt mittig stand.
+Gemessen:
+
+| Projekt | Wert | Umsetzung |
+|---|---|---|
+| A, Header + Footer | `--art-wdth` | `max-width` + `margin-left/right: auto !important` |
+| B, Header | derselbe Wert | dieselben vier Zeilen, plus `position: relative` |
+| B, Footer | derselbe Wert | **nur die Variable, ohne Regel – wirkungslos** |
+| C, Header + Footer | anderer Wert, hart notiert | zusätzlich `box-sizing` und `width` |
+
+In Projekt A stand der Wunsch bereits als Kommentar im Code („Als Einstellung
+ins Repo übernehmen!"), in Projekt B war die Kopie im Footer schon
+auseinandergefallen. `box-sizing` ist überdies global im Core
+(`ctm_base/_defaults.scss`).
+
+**Der Listen-Reset nahm dem mobilen Menü seinen Innenabstand.** Zwei Projekte
+setzten `header .mod_navigation ul { margin: 0; padding: 0; list-style: none }`.
+`ctm-push-navigation` klont die Navigation aber nicht – es hängt `.pn-init` an
+dasselbe Element, das Overlay bleibt im `<header>` und wird von diesem Selektor
+mitgetroffen. Mit Spezifität 0,1,2 schlägt er `.pn-init ul { padding: 30px }`
+(0,1,1), das aufgeklappte Menü klebte also am Rand. Umgekehrt gilt für
+`list-style` das Gegenteil: Der Core setzt es nur an `.nav` und nur oberhalb von
+`$navigation-behaviour-min-width`, die Push-Navigation gar nicht – ohne eine
+Regel stehen im mobilen Menü Aufzählungspunkte. Das Paket trennt beides
+entsprechend auf.
 
 ## Fallen beim Weiterentwickeln
 

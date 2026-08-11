@@ -10,6 +10,37 @@ header .mod_navigation:not(.pn-init) {
   display: none;
 }
 
+// Listen-Ruecksetzung.
+//
+// Der Core setzt list-style und padding nur an `.nav`
+// (ctm_components/_navigation.scss) und erst oberhalb von
+// $navigation-behaviour-min-width. Ein Navigationsmodul ohne diese Klasse
+// behaelt die Browser-Aufzaehlung – zwei Projekte haben den Reset deshalb
+// einzeln nachgetragen. margin fehlt dem Core ohnehin.
+//
+// Aufgeteilt, und das ist nicht kosmetisch: ctm-push-navigation KLONT die
+// Navigation nicht, es haengt .pn-init an dasselbe Element – das Overlay
+// bleibt also im <header> und wird von `header .mod_navigation ul`
+// mitgetroffen (gemessen). Fuer die drei Eigenschaften gilt dabei Gegenteiliges:
+//
+//   list-style  soll ueberall weg. Der Core deckt nur Desktop ab, die
+//               Push-Navigation setzt gar nichts – ohne diese Regel stehen im
+//               mobilen Menue Aufzaehlungspunkte (gemessen bei 375px).
+//   margin
+//   padding     duerfen das Overlay NICHT treffen. Dort formatiert das Paket
+//               ueber `.pn-init ul { margin: 0; padding: 30px }`, Spezifitaet
+//               0,1,1. Ein blankes `header .mod_navigation ul` liegt mit 0,1,2
+//               darueber und nimmt dem mobilen Menue seinen Innenabstand –
+//               genau das ist in einem Projekt unbemerkt passiert.
+header .mod_navigation ul {
+  list-style: none;
+}
+
+header .mod_navigation:not(.pn-init) ul {
+  margin: 0;
+  padding: 0;
+}
+
 // Ausgeschriebene Media Query statt @include media-breakpoint().
 //
 // Diese Datei wird ZWEIMAL uebersetzt, und nur einer der beiden Wege kennt die

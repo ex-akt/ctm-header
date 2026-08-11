@@ -15,3 +15,18 @@ $xh-toggle-duration:          .22s !default;
 // Hauptnavigation
 $xh-nav-gap:                  var(--gtr-half) !default;
 $xh-nav-color-active:         var(--clr-primary) !default;
+
+// Breite von Header und Footer
+//
+// Die drei Stufen entsprechen den Artikelbreiten des Core (art-px-1/2/3), damit
+// Header, Inhalt und Footer buendig stehen. Die Werte stammen aus
+// core/_config.scss und sind hier verfuegbar, weil der Compiler jeder Datei die
+// configFiles aller Pakete voranstellt.
+//
+// calc() statt der Core-Funktion sub(): die liegt in ctm_utils/ und fehlt im
+// eigenen Kompilat des Pakets (siehe Kommentar in ctm_modules-xh/_navigation).
+// Das Ergebnis ist dasselbe – der Core rechnet den Gutter ebenfalls gegen die
+// Breakpoint-Breite.
+$xh-content-width-1:          $x-spacing-small !default;
+$xh-content-width-2:          calc(#{map-get($breakpoints, 'l')} - #{$grid-gutter-width}) !default;
+$xh-content-width-3:          $x-spacing-large-l !default;

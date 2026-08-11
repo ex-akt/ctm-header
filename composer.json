@@ -1,0 +1,53 @@
+{
+  "name": "ex-akt/ctm-header",
+  "type": "symfony-bundle",
+  "description": "Header components (menu toggle, navigation behaviour) for Contao Theme-Manager",
+  "keywords": ["contao", "theme-manager", "header", "navigation", "toggle"],
+  "homepage": "https://www.ex-akt.de/",
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "ex-akt",
+      "homepage": "https://ex-akt.de/",
+      "role": "Developer"
+    },
+    {
+      "name": "Samuel Heer",
+      "homepage": "https://github.com/samuelheer",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "contao/core-bundle": "^5.3",
+    "contao-thememanager/core": "^2.2",
+    "contao-thememanager/ctm-push-navigation": "^1.1"
+  },
+  "require-dev": {
+    "contao/manager-plugin": "^2.3.1"
+  },
+  "conflict": {
+    "contao/core": "*",
+    "contao/manager-plugin": "<2.0 || >=3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ExAkt\\CtmHeader\\": "src/"
+    },
+    "classmap": [
+      "contao/"
+    ],
+    "exclude-from-classmap": [
+      "contao/config/",
+      "contao/dca/",
+      "contao/languages/",
+      "contao/templates/"
+    ]
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0.x-dev"
+    },
+    "contao-manager-plugin": "ExAkt\\CtmHeader\\ContaoManager\\Plugin"
+  }
+}

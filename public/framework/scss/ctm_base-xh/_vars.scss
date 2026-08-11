@@ -1,0 +1,20 @@
+// Die einzige Schnittstelle zum Projekt.
+//
+// $-Werte gelten nur im Kompilat dieses Pakets, --Werte zur Laufzeit ueberall.
+// Ein Projekt ueberschreibt sie am besten direkt am betroffenen Element
+// (.mod_toggle { --xh-tgl-w: 2.5rem }) – eine Custom Property vom naeheren
+// Vorfahren gewinnt unabhaengig davon, welche Datei zuerst geladen wurde.
+
+:root {
+  // Burger-Symbol
+  --xh-tgl-w:       #{$xh-toggle-width};
+  --xh-tgl-h:       #{$xh-toggle-height};
+  --xh-tgl-bar-h:   #{$xh-toggle-bar-height};
+  --xh-tgl-bar-r:   #{$xh-toggle-bar-radius};
+  --xh-tgl-clr:     #{$xh-toggle-color};
+  --xh-tgl-dur:     #{$xh-toggle-duration};
+
+  // Hauptnavigation
+  --xh-nav-gap:     #{$xh-nav-gap};
+  --xh-nav-clr-a:   #{$xh-nav-color-active};
+}

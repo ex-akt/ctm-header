@@ -1,0 +1,17 @@
+// ex-akt Header
+//
+// Diese Werte sind Compile-Zeit-Defaults. Sie lassen sich NICHT aus dem
+// Projekt-SCSS ueberschreiben – das Paket wird separat kompiliert. Fuer
+// Projektanpassungen die CSS-Variablen aus ctm_base-xh/_vars.scss nutzen.
+
+// Burger-Symbol
+$xh-toggle-width:             2rem !default;
+$xh-toggle-height:            1.25rem !default;
+$xh-toggle-bar-height:        .1875rem !default;
+$xh-toggle-bar-radius:        .1875rem !default;
+$xh-toggle-color:             var(--text-clr-base) !default;
+$xh-toggle-duration:          .22s !default;
+
+// Hauptnavigation
+$xh-nav-gap:                  var(--gtr-half) !default;
+$xh-nav-color-active:         var(--clr-primary) !default;

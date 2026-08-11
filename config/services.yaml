@@ -1,0 +1,6 @@
+services:
+    _defaults:
+        autoconfigure: true
+
+    ExAkt\CtmHeader\Controller\:
+        resource: ../src/Controller

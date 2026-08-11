@@ -1,0 +1,59 @@
+// Umschaltung Hauptnavigation <-> Push-Navigation
+//
+// Die Falle, die jedes Projekt einzeln getreten hat: ctm-push-navigation
+// VERSCHIEBT die Navigation nicht, es haengt .pn-init an dasselbe Element und
+// regelt die Sichtbarkeit danach selbst. Ein pauschales
+// `header .mod_navigation { display: none }` blendet deshalb auch das
+// aufgeklappte Menue aus – die Ausnahme muss ueber :not(.pn-init) laufen.
+
+header .mod_navigation:not(.pn-init) {
+  display: none;
+}
+
+// Ausgeschriebene Media Query statt @include media-breakpoint().
+//
+// Diese Datei wird ZWEIMAL uebersetzt, und nur einer der beiden Wege kennt die
+// Mixins:
+//
+//   projekt.scss   @import "theme" laedt ctm_utils, danach @import "header"
+//                  -> media-breakpoint() waere hier verfuegbar
+//   TC_SOURCES     eigenes Kompilat nach _header.css; der FileCompiler stellt
+//                  nur die configFiles voran, ctm_utils ist nicht dabei
+//                  -> "Undefined mixin" (gemessen)
+//
+// Und dieser Abbruch bleibt nicht lokal: Er beendet den gesamten Compile-Lauf,
+// sodass auch projekt.css nicht mehr geschrieben wird. Der ThemeCompileCommand
+// zeigt dabei nicht einmal die Ursache an, sondern scheitert im catch-Block an
+// einem undefinierten $io. Die Datei muss also im kleineren der beiden
+// Kontexte lauffaehig bleiben.
+//
+// $navigation-behaviour-min-width dagegen stammt aus core/_config.scss und
+// steht in beiden Wegen zur Verfuegung – die configFiles werden immer
+// vorangestellt.
+@media (min-width: $navigation-behaviour-min-width) {
+
+  // Gleiche Spezifitaet wie oben (0,2,1) – ein blankes `header .mod_navigation`
+  // verliert gegen :not(.pn-init), und die Navigation bliebe auch auf dem
+  // Desktop unsichtbar.
+  header .mod_navigation:not(.pn-init) {
+    display: block;
+  }
+
+  // Absicherung. Regulaer nimmt das JS oberhalb
+  // von --nav-bhr die Klasse .pn-show selbst wieder weg, womit der Umschalter
+  // schon durch sein display:none aus _toggle.scss verschwindet. Bleibt das
+  // JS aus, greift wenigstens diese Regel.
+  .mod_toggle {
+    display: none;
+  }
+
+  header .mod_navigation .level_1 {
+    display: flex;
+    gap: var(--xh-nav-gap);
+  }
+
+  header .mod_navigation .level_1 > li.active > strong,
+  header .mod_navigation .level_1 > li > a:hover {
+    color: var(--xh-nav-clr-a);
+  }
+}

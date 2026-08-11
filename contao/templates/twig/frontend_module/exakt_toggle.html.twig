@@ -1,0 +1,17 @@
+{% extends "@Contao/frontend_module/_base.html.twig" %}
+
+{# Nur `mod_toggle` gehoert ins Markup – das ist der Default-Selektor, nach dem
+   ctm-push-navigation sucht. `pn-toggle` und `pn-show` NICHT hartkodieren: Das
+   Paket-JS pflegt beide selbst (classList.add/remove auf dem Toggle und dem
+   erzeugten Button) und entfernt `pn-show` oberhalb von --nav-bhr wieder.
+
+   Die Klasse muss am Modul-Wrapper selbst sitzen, damit das Element direktes
+   Kind des Headers bleibt und dort im Flex-Layout steht. `_base` merged die
+   Attribute mit der cssID aus dem Backend. #}
+{% set attributes = attrs().addClass('mod_toggle') %}
+
+{# Kein headline-Block: ein Umschalter traegt keine Ueberschrift.
+   div statt span – die Boxen sind Blockelemente. #}
+{% block inner %}
+    <div class="burger-box"><div class="burger-inner"></div></div>
+{% endblock %}

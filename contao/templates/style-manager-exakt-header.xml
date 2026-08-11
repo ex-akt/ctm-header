@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Style-Manager-Konfiguration des Pakets.
+
+  Contao\StyleManager\Config::loadBundleConfiguration() parst alle
+  style-manager-*.xml unter vendor/*/*/contao/templates/ ZUR LAUFZEIT. Das Paket
+  zu installieren genuegt also - die Datei muss weder in ein Projekt kopiert noch
+  im Backend importiert werden, und tl_style_manager bleibt dabei leer.
+
+  Nur Klassen eintragen, fuer die dieses Paket auch eine CSS-Regel mitbringt
+  (ctm_modules-xh/_toggle.scss). Eine Gruppe ohne Regel waere im Backend
+  waehlbar und im Frontend wirkungslos.
+
+  extendModule/modules gehoeren ans CHILD, nicht ans Archiv - ohne die
+  Whitelist bleibt die Gruppe im Modul unsichtbar, waehrend clearClasses() die
+  Klasse trotzdem aus dem CSS-Feld filtert. Sie waere dann nirgends mehr
+  pflegbar.
+-->
+<archives>
+  <archive identifier="mHeaderToggle">
+    <field title="id">900</field>
+    <field title="title">Menü-Umschalter</field>
+    <field title="identifier">mHeaderToggle</field>
+    <field title="groupAlias">Component</field>
+    <field title="sorting">128</field>
+    <children>
+      <child alias="size">
+        <field title="pid">900</field>
+        <field title="sorting">128</field>
+        <field title="alias">size</field>
+        <field title="title">Größe des Symbols</field>
+        <field title="description">Skaliert das Burger-Symbol des Menü-Umschalters.</field>
+        <field title="cssClasses">a:2:{i:0;a:2:{s:3:&quot;key&quot;;s:9:&quot;tgl-small&quot;;s:5:&quot;value&quot;;s:5:&quot;Klein&quot;;}i:1;a:2:{s:3:&quot;key&quot;;s:9:&quot;tgl-large&quot;;s:5:&quot;value&quot;;s:5:&quot;Groß&quot;;}}</field>
+        <field title="blankOption">1</field>
+        <field title="extendModule">1</field>
+        <field title="modules">a:1:{i:0;s:12:&quot;exakt_toggle&quot;;}</field>
+      </child>
+    </children>
+  </archive>
+</archives>

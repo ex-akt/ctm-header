@@ -1,0 +1,132 @@
+// Burger-Symbol
+//
+// ctm-push-navigation liefert fuer .pn-toggle nur Sichtbarkeit und
+// Button-Reset – gezeichnet wird das Symbol nirgends. Genau diese Luecke haben
+// die Projekte bisher einzeln gefuellt.
+//
+// Geometrie und Timing sind ueber CSS-Variablen steuerbar gemacht.
+//
+// Zur Mechanik: Das Paket-JS wrappt das Modul in <button class="pn-btn">,
+// setzt .pn-toggle am Element, .pn-show beim Einblenden und .open beim
+// Aufklappen. Alles davon nur bedienen, nicht nachbauen.
+
+.pn-btn {
+  height: 100%;
+}
+
+.mod_toggle {
+  // Versteckt, bis das JS .pn-toggle + .pn-show setzt. Die Regel des Pakets
+  // (.pn-toggle.pn-show, Spezifitaet 0,2,0) schlaegt diese hier (0,1,0), also
+  // gewinnt der eingeblendete Zustand unabhaengig von der Ladereihenfolge.
+  // Ohne JS bliebe der Umschalter aus – dann waere er ohnehin funktionslos.
+  display: none;
+
+  align-self: center;
+  width: var(--xh-tgl-w);
+  height: var(--xh-tgl-h);
+  color: var(--xh-tgl-clr);
+  line-height: 1;
+  z-index: 2;
+  cursor: pointer;
+
+  .burger-box {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .burger-inner {
+    top: 50%;
+    display: block;
+    margin-top: calc(var(--xh-tgl-bar-h) / -2);
+    transition-timing-function: cubic-bezier(.55, .055, .675, .19);
+    transition-duration: var(--xh-tgl-dur);
+
+    &,
+    &::before,
+    &::after {
+      position: absolute;
+
+      // left: 0 ist nicht optional. Ohne die Angabe behalten die
+      // Pseudoelemente ihre statische Position – gemessen 16px, also die halbe
+      // Symbolbreite. Im geschlossenen Zustand stehen die aeusseren Striche
+      // dann versetzt, beim Aufklappen kreuzen sie sich nicht mehr in der
+      // Mitte und aus dem X wird ein Winkel. Ein display:block an den
+      // Pseudoelementen (s.u.) genuegt ebenfalls; beides zusammen ist
+      // eindeutig.
+      left: 0;
+      width: 100%;
+      height: var(--xh-tgl-bar-h);
+      border-radius: var(--xh-tgl-bar-r);
+      background-color: currentColor;
+
+      // Nur transform global – top/bottom/opacity bekommen unten eigene
+      // Uebergaenge mit Verzoegerung. Daraus entsteht die zweistufige
+      // Bewegung: erst fahren die aeusseren Striche zusammen, dann dreht sich
+      // das Kreuz. Ein gemeinsames transition-property fuer alles laesst
+      // beides gleichzeitig laufen und wirkt deutlich unruhiger.
+      transition-timing-function: ease;
+      transition-duration: .15s;
+      transition-property: transform;
+    }
+
+    &::before,
+    &::after {
+      display: block;
+      content: '';
+    }
+
+    // Die aeusseren Balken sitzen je einen halben Symbolabstand ueber und
+    // unter der Mitte – aus der Hoehe gerechnet, damit ein geaendertes
+    // --xh-tgl-h das Symbol nicht auseinanderreisst.
+    &::before {
+      top: calc((var(--xh-tgl-h) - var(--xh-tgl-bar-h)) / -2);
+      transition: top .1s ease-in .25s, opacity .1s ease-in;
+    }
+
+    &::after {
+      bottom: calc((var(--xh-tgl-h) - var(--xh-tgl-bar-h)) / -2);
+      transition: bottom .1s ease-in .25s, transform var(--xh-tgl-dur) cubic-bezier(.55, .055, .675, .19);
+    }
+  }
+
+  // Groessen aus dem Style-Manager (Gruppe mHeaderToggle). Nur die Variablen
+  // umsetzen, nicht die Regeln darunter duplizieren – dadurch bleibt die
+  // Geometrie der Balken automatisch stimmig.
+  &.tgl-small {
+    --xh-tgl-w: 1.5rem;
+    --xh-tgl-h: 1rem;
+    --xh-tgl-bar-h: .125rem;
+  }
+
+  &.tgl-large {
+    --xh-tgl-w: 2.5rem;
+    --xh-tgl-h: 1.625rem;
+    --xh-tgl-bar-h: .25rem;
+  }
+
+  &.open {
+    .burger-inner {
+      transform: rotate(225deg);
+      transition-delay: .12s;
+      transition-timing-function: cubic-bezier(.215, .61, .355, 1);
+
+      &:hover {
+        opacity: .7;
+      }
+
+      &::before {
+        top: 0;
+        opacity: 0;
+        transition: top .1s ease-out, opacity .1s ease-out .12s;
+      }
+
+      &::after {
+        bottom: 0;
+        transform: rotate(-90deg);
+        transition: bottom .1s ease-out, transform var(--xh-tgl-dur) cubic-bezier(.215, .61, .355, 1) .12s;
+      }
+    }
+  }
+}

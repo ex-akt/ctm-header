@@ -4,3 +4,7 @@ services:
 
     ExAkt\CtmHeader\Controller\:
         resource: ../src/Controller
+
+    ExAkt\CtmHeader\EventListener\:
+        resource: ../src/EventListener
+        autowire: true

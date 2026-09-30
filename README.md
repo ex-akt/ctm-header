@@ -34,6 +34,7 @@ Dieses Paket macht daraus Code.
 | `ctm_modules-xh/_pushnavigation.scss` | zweite Erscheinungsform des mobilen Menüs: Panel statt Vollbild-Overlay |
 | Skript **`exakt_navigation`** (`js_exakt_navigation`) | Init der Push-Navigation mit Scroll-Sperre, „Klick daneben schließt", Schließen bei Sprungmarken und Escape |
 | `ctm_modules-xh/_container.scss` | Breite von Header und Footer – der Core begrenzt nur Artikel |
+| Listener **CSP-Nonce** (`CspNonceListener`) | versieht Inline-Skripte aus `TL_HEAD`/`TL_BODY` mit dem CSP-Nonce, damit die ThemeManager-Skripte unter scharfer CSP laufen (siehe unten) |
 | `style-manager-exakt-header.xml` | Style-Manager-Gruppen für Symbolgröße (am Modul), Inhaltsbreite und mobiles Menü (am Layout), ohne Kopie ins Projekt |
 
 ## Installation
@@ -417,11 +418,16 @@ entsprechend auf.
   ausschließlich ausgeschriebenes `@media` mit derselben Variable. Nur der Core
   darf die Mixins nutzen – er wird über `_theme.scss` übersetzt.
 
-- **Inline-Skript nur mit Nonce.** Der Initialisierungsblock in
-  `js_exakt_navigation.html5` holt sich `$this->nonce('script-src')`. Mit
-  aktiver CSP auf der Startseite (`enableCsp`) läuft er sonst nicht und das
-  Menü bleibt tot, ohne Fehler auf der Seite (nur als CSP-Verstoß in der
-  Konsole). Ohne CSP entfällt das Attribut. Neue Inline-Skripte genauso bauen.
+- **Inline-Skripte und CSP.** Contao vergibt den Nonce nur an Templates, die
+  ihn anfordern. `js_exakt_navigation` tut das selbst. Für die
+  ThemeManager-Skripte (`js_ctm_core`, `js_ctm_stickyheader`, `js_ctm_a11y`)
+  übernimmt das `CspNonceListener` über den Hook `replaceDynamicScriptTags`: Er
+  noncet nur Einträge in `TL_HEAD`/`TL_BODY`, nie den Seiteninhalt, und nur für
+  `script-src`. Ein Nonce in `style-src` würde `'unsafe-inline'` aushebeln und
+  jedes `style`-Attribut brechen. Ohne aktive CSP (`enableCsp` an der
+  Startseite) tut er nichts. Mit Contao 6.1 (contao/contao#10116) entfällt er.
+  Nie auf „alle `<script>` der fertigen Seite" erweitern, das würde
+  eingeschleustes Skript mit freischalten.
 
 ## Anforderungen
 

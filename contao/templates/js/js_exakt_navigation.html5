@@ -29,8 +29,12 @@
 
 $GLOBALS['TL_JAVASCRIPT']['ctm-push-navigation'] = 'bundles/contaothememanagerpushnavigation/assets/dist/pushnavigation.js|static';
 
-$GLOBALS['TL_HEAD']['exakt-navigation'] = <<<'HTML'
-<script>
+// Nonce fuer eine aktive Content-Security-Policy (Startseite -> CSP). Ohne
+// CSP liefert nonce() null und setIfExists() laesst das Attribut ganz weg.
+$nonce = $this->attr()->setIfExists('nonce', $this->nonce('script-src'));
+
+$GLOBALS['TL_HEAD']['exakt-navigation'] = '<script' . $nonce . '>' . <<<'HTML'
+
 window.addEventListener('load', function () {
     if (typeof PushNavigation === 'undefined' || window.pn) {
         return;

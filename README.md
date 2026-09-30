@@ -417,6 +417,12 @@ entsprechend auf.
   ausschließlich ausgeschriebenes `@media` mit derselben Variable. Nur der Core
   darf die Mixins nutzen – er wird über `_theme.scss` übersetzt.
 
+- **Inline-Skript nur mit Nonce.** Der Initialisierungsblock in
+  `js_exakt_navigation.html5` holt sich `$this->nonce('script-src')`. Mit
+  aktiver CSP auf der Startseite (`enableCsp`) läuft er sonst nicht und das
+  Menü bleibt tot, ohne Fehler auf der Seite (nur als CSP-Verstoß in der
+  Konsole). Ohne CSP entfällt das Attribut. Neue Inline-Skripte genauso bauen.
+
 ## Anforderungen
 
 - PHP ≥ 8.2, Contao ≥ 5.3

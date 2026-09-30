@@ -225,6 +225,12 @@ body {
 }
 ```
 
+**Logo über dem Overlay.** Im Overlay-Modus bleibt das Logo beim Aufklappen
+sichtbar – es liegt auf derselben Ebene wie der Umschalter (`--xh-logo-z: 2`).
+Ohne das deckte das Overlay den Header-Streifen mit ab und das Logo verschwand.
+Im Panel-Modus bleibt es bewusst darunter (das Panel fährt über den
+Logo-Bereich). Wer das Logo auch im Overlay verdecken will: `--xh-logo-z: 0`.
+
 Die Theme-Manager-Einstellung *Push-Navigation → Hintergrund* (`--pn-bg`) greift
 im Panel-Modus nicht: Ihr Default ist halbtransparent, was für ein Panel nicht
 taugt. Wer sie trotzdem will: `--xh-pnl-bg: var(--pn-bg)`.

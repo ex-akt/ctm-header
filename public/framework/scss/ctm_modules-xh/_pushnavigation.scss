@@ -154,3 +154,21 @@ body:is(.nav-pnl-left, .nav-pnl-right).nav-open::after {
 body.nav-open {
   overflow: hidden;
 }
+
+// Logo ueber dem Vollbild-Overlay
+//
+// Im Overlay-Modus deckt .pn-init den ganzen Viewport ab, auch den Header-
+// Streifen – und damit das Logo, das ohne eigene Ebene darunter liegt. Der
+// Umschalter ist bereits angehoben (_toggle.scss, z-index 2), das Logo kommt
+// auf dieselbe Ebene. Gemessen an federmann-service.de (30.09.2026): vorher
+// lag an der Logo-Mitte das Overlay oben, danach das Logo-Bild.
+//
+// NICHT im Panel-Modus: Das Panel faehrt ueber den Logo-Bereich (links) bzw.
+// der abgedunkelte Grund liegt darueber – ein angehobenes Logo laege dort auf
+// den Menuepunkten bzw. stuende hell im abgedunkelten Grund.
+//
+// Ausschalten pro Projekt: --xh-logo-z: 0 (Variable in ctm_base-xh/_vars).
+body:not(.nav-pnl-left):not(.nav-pnl-right) header .mod_logo {
+  position: relative;
+  z-index: var(--xh-logo-z);
+}

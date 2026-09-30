@@ -53,6 +53,12 @@ $xh-panel-backdrop-blur:      2px !default;
 // gehoert darunter, aber ueber den Seiteninhalt.
 $xh-panel-backdrop-z:         98 !default;
 
+// Logo ueber dem Vollbild-Overlay. .pn-init liegt mit z-index 1 im
+// Stacking-Context des Headers; das Logo hat ohne eigene Ebene keinen und
+// verschwand beim Aufklappen unter dem Overlay. 2 = dieselbe Ebene wie der
+// Umschalter. Auf 0 setzen, wenn das Logo bewusst verdeckt werden soll.
+$xh-logo-z:                   2 !default;
+
 // Breite von Header und Footer
 //
 // Die drei Stufen entsprechen den Artikelbreiten des Core (art-px-1/2/3), damit
